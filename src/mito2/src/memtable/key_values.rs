@@ -222,7 +222,14 @@ impl SparseReadRowHelper {
         // Safety: time index must exist
         let ts_index = name_to_index
             .get(&metadata.time_index_column().column_schema.name)
-            .unwrap();
+            .unwrap_or_else(|| {
+                panic!(
+                    "time index column {} not found in region {:?}, metadata: {:?}",
+                    metadata.time_index_column().column_schema.name,
+                    metadata.region_id,
+                    metadata,
+                )
+            });
         indices.push(Some(*ts_index));
 
         // Iterate columns and find field columns.
